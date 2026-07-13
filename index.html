@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>专属居家健身教练</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background-color: #0f172a; 
+      color: #f8fafc;
+      overscroll-behavior-y: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.7); 
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .timer-ring {
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+      transition: stroke-dashoffset 1s linear;
+    }
+    .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pulse-glow { animation: pulseGlow 2s infinite; }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+      70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+    }
+    .toast {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 0;
+      transform: translate(-50%, 20px);
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 sm:p-6 max-w-md mx-auto">
+
+  <div class="mb-4">
+    <div class="flex justify-between items-center mb-1 px-1">
+      <span class="text-xs font-semibold text-slate-400 tracking-wider">今日训练进度</span>
+      <span id="overall-percent" class="text-xs font-bold text-indigo-400">0%</span>
+    </div>
+    <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden shadow-inner">
+      <div id="overall-progress" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500 w-0"></div>
+    </div>
+  </div>
+
+  <main class="glass-panel rounded-[2.5rem] p-6 text-center relative overflow-hidden flex-1 flex flex-col justify-between z-10">
+    
+    <!-- 部位选择 -->
+    <div class="flex p-1 mb-4 bg-slate-800/80 rounded-full relative z-10 w-[95%] mx-auto shadow-inner border border-slate-700/50">
+      <div id="cat-indicator" class="absolute top-1 bottom-1 left-0 rounded-full bg-slate-700 shadow-sm border border-slate-600/50 transition-all duration-300 ease-out z-0"></div>
+      <button id="cat-upper" onclick="switchCategory('upper')" class="flex-1 py-1.5 rounded-full font-bold text-white text-sm sm:text-base relative z-10 transition-colors duration-300">上半身 (Day 1)</button>
+      <button id="cat-lower" onclick="switchCategory('lower')" class="flex-1 py-1.5 rounded-full font-medium text-slate-400 hover:text-white text-sm sm:text-base relative z-10 transition-colors duration-300">下半身 (Day 2)</button>
+    </div>
+
+    <!-- 分页标签 -->
+    <div class="flex p-1.5 mb-6 bg-slate-800/60 rounded-2xl relative z-10 shadow-inner border border-slate-700/30">
+      <div id="tab-indicator" class="absolute top-[6px] bottom-[6px] left-0 rounded-xl bg-indigo-600/30 shadow-sm border border-indigo-500/30 transition-all duration-300 ease-out z-0"></div>
+      <button id="tab-relax" onclick="switchTab('relax')" class="flex-1 py-2.5 rounded-xl font-bold text-indigo-300 transition-colors duration-300 text-sm sm:text-base relative z-10">放松</button>
+      <button id="tab-train" onclick="switchTab('train')" class="flex-1 py-2.5 rounded-xl font-medium text-slate-400 hover:text-white transition-colors duration-300 text-sm sm:text-base relative z-10">训练</button>
+      <button id="tab-stretch" onclick="switchTab('stretch')" class="flex-1 py-2.5 rounded-xl font-medium text-slate-400 hover:text-white transition-colors duration-300 text-sm sm:text-base relative z-10">拉伸</button>
+    </div>
+
+    <!-- 核心计分区 -->
+    <div class="flex flex-col items-center justify-center flex-1 my-2 relative">
+      <h2 id="current-action" class="text-3xl sm:text-4xl font-extrabold text-white mb-2 tracking-tight drop-shadow-md transition-all">准备开始</h2>
+      <p id="action-detail" class="text-indigo-400 font-medium text-sm sm:text-base mb-6 opacity-0 transition-opacity duration-300"></p>
+      
+      <div onclick="togglePause()" class="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center mb-6 cursor-pointer hover:scale-105 transition-transform active:scale-95 group" title="点击暂停/继续">
+        <svg class="absolute inset-0 w-full h-full drop-shadow-xl" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" stroke-width="6" />
+          <circle id="timer-ring" class="timer-ring text-indigo-500" cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="0" />
+        </svg>
+        <div id="timer" class="text-6xl sm:text-7xl font-black text-white drop-shadow-lg tabular-nums tracking-tighter z-10 transition-opacity duration-300">00</div>
+        
+        <!-- 暂停遮罩图标 -->
+        <div id="pause-overlay" class="absolute inset-0 flex items-center justify-center bg-slate-900/60 rounded-full opacity-0 backdrop-blur-[2px] transition-opacity duration-300 z-20">
+          <i data-lucide="pause" class="w-16 h-16 text-white opacity-90 fill-white"></i>
+        </div>
+      </div>
+      
+      <!-- 下一个动作提示 -->
+      <button id="next-action-container" onclick="skipToNext()" class="opacity-0 pointer-events-none transition-all duration-300 bg-slate-800/80 hover:bg-slate-700 active:scale-95 border border-slate-600 rounded-full px-5 py-2.5 flex items-center gap-2 shadow-lg mb-2">
+        <i data-lucide="skip-forward" class="w-4 h-4 text-slate-400"></i>
+        <span class="text-sm font-medium text-slate-300">下一个：<span id="next-action-name" class="text-white font-bold">--</span></span>
+      </button>
+    </div>
+
+    <!-- 控制按钮 -->
+    <div class="mt-4 flex gap-3">
+      <button id="start-btn" onclick="startWorkout()" class="flex-1 bg-gradient-to-r from-indigo-600 to-blue-500 text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95 pulse-glow">
+        开始训练
+      </button>
+    </div>
+  </main>
+
+  <section class="mt-6 glass-panel rounded-3xl p-5 mb-4">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-white flex items-center gap-2">
+        <i data-lucide="calendar-check" class="w-5 h-5 text-indigo-400"></i> 训练日志
+      </h3>
+      <div class="flex gap-2">
+        <button onclick="backupLogs()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition-colors border border-slate-700 flex items-center gap-1">
+          <i data-lucide="download" class="w-3 h-3"></i> 备份
+        </button>
+        <label class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-slate-700 flex items-center gap-1">
+          <i data-lucide="upload" class="w-3 h-3"></i> 恢复
+          <input type="file" accept=".json" class="hidden" onchange="restoreLogs(event)">
+        </label>
+      </div>
+    </div>
+    <ul id="log-list" class="space-y-3 max-h-48 overflow-y-auto pr-1">
+      <li class="text-center text-slate-500 text-sm py-4">还没有记录，今天也动起来吧！</li>
+    </ul>
+  </section>
+
+  <!-- Toast 提示框 -->
+  <div id="toast" class="toast fixed bottom-10 left-1/2 bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl border border-slate-600 text-sm font-medium z-50 flex items-center gap-2">
+    <i data-lucide="info" class="w-4 h-4 text-indigo-400"></i>
+    <span id="toast-msg">提示信息</span>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // === 训练菜单数据（已修正所有基于次数与秒数的总时长） ===
+    const workoutPlans = {
+      upper: {
+        relax: [
+          { name: '颈后肌群放松', duration: 60, detail: '12个·5秒', speak: '颈后肌群放松。共12个，每个5秒。准备开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '肩胛提肌拉伸', duration: 30, detail: '2组·30秒 - 第1组', speak: '肩胛提肌拉伸。共两组，每组30秒。第一组开始。' },
+          { name: '肩胛提肌拉伸', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '斜角肌斜方肌放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '斜角肌斜方肌放松。共两组。第一组开始。' },
+          { name: '斜角肌斜方肌放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '胸锁乳突肌放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '胸锁乳突肌放松。第一组开始。' },
+          { name: '胸锁乳突肌放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '肩胛下角放松', duration: 60, detail: '1组·1分钟', speak: '肩胛下角放松。1分钟。开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '上背部放松', duration: 20, detail: '4组·20秒 - 第1组', speak: '上背部放松。共4组。第一组开始。' },
+          { name: '上背部放松', duration: 20, detail: '4组·20秒 - 第2组', speak: '第二组开始。' },
+          { name: '上背部放松', duration: 20, detail: '4组·20秒 - 第3组', speak: '第三组开始。' },
+          { name: '上背部放松', duration: 20, detail: '4组·20秒 - 第4组', speak: '第四组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '肩胛骨放松', duration: 10, detail: '3组·10秒 - 第1组', speak: '肩胛骨放松。第一组开始。' },
+          { name: '肩胛骨放松', duration: 10, detail: '3组·10秒 - 第2组', speak: '第二组。' },
+          { name: '肩胛骨放松', duration: 10, detail: '3组·10秒 - 第3组', speak: '第三组。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '三角肌放松', duration: 20, detail: '2组·20秒 - 第1组', speak: '三角肌放松。第一组开始。' },
+          { name: '三角肌放松', duration: 20, detail: '2组·20秒 - 第2组', speak: '第二组。' }
+        ],
+        train: [
+          { name: '肩部正反向环绕', duration: 60, detail: '30个·2秒', speak: '肩部正反向环绕。共30个，每边两秒。准备开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '猫式伸展', duration: 40, detail: '3组·10个 - 第1组', speak: '猫式伸展。共三组。第一组开始。' },
+          { name: '猫式伸展', duration: 40, detail: '3组·10个 - 第2组', speak: '第二组。' },
+          { name: '猫式伸展', duration: 40, detail: '3组·10个 - 第3组', speak: '第三组。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: 'Y训练', duration: 60, detail: '2组·12个·5秒 - 第1组', speak: 'Y训练。第一组开始。' },
+          { name: 'Y训练', duration: 60, detail: '2组·12个·5秒 - 第2组', speak: '第二组。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '俯卧挺身', duration: 40, detail: '3组·10个 - 第1组', speak: '俯卧挺身。第一组开始。' },
+          { name: '俯卧挺身', duration: 40, detail: '3组·10个 - 第2组', speak: '第二组。' },
+          { name: '俯卧挺身', duration: 40, detail: '3组·10个 - 第3组', speak: '第三组。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '卷腹', duration: 45, detail: '3组·15个 - 第1组', speak: '卷腹。第一组开始。' },
+          { name: '卷腹', duration: 45, detail: '3组·15个 - 第2组', speak: '第二组。' },
+          { name: '卷腹', duration: 45, detail: '3组·15个 - 第3组', speak: '第三组。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '平板支撑', duration: 120, detail: '1组·2分钟', speak: '平板支撑。为您计时两分钟，请保持呼吸。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '胸椎旋转', duration: 60, detail: '15个·4秒', speak: '胸椎旋转。开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '单腿平衡', duration: 30, detail: '每侧保持30秒', speak: '单腿平衡。开始。' }
+        ],
+        stretch: [
+          { name: 'L胸部伸展', duration: 10, detail: '3组·10秒 - 第1组', speak: 'L胸部伸展。共三组。第一组开始。' },
+          { name: 'L胸部伸展', duration: 10, detail: '3组·10秒 - 第2组', speak: '第二组。' },
+          { name: 'L胸部伸展', duration: 10, detail: '3组·10秒 - 第3组', speak: '第三组。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '肱二头肌拉伸', duration: 30, detail: '2组·30秒 - 第1组', speak: '肱二头肌拉伸。第一组开始。' },
+          { name: '肱二头肌拉伸', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '手臂后侧拉伸', duration: 15, detail: '3组·15秒 - 第1组', speak: '手臂后侧拉伸。第一组开始。' },
+          { name: '手臂后侧拉伸', duration: 15, detail: '3组·15秒 - 第2组', speak: '第二组。' },
+          { name: '手臂后侧拉伸', duration: 15, detail: '3组·15秒 - 第3组', speak: '第三组。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '背部左右拉伸', duration: 60, detail: '12个·5秒', speak: '背部左右拉伸。共十二个。开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '背部拉伸', duration: 30, detail: '3组·30秒 - 第1组', speak: '背部拉伸。第一组开始。' },
+          { name: '背部拉伸', duration: 30, detail: '3组·30秒 - 第2组', speak: '第二组。' },
+          { name: '背部拉伸', duration: 30, detail: '3组·30秒 - 第3组', speak: '第三组。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '脊椎伸展', duration: 10, detail: '3组·10秒 - 第1组', speak: '脊椎伸展。第一组开始。' },
+          { name: '脊椎伸展', duration: 10, detail: '3组·10秒 - 第2组', speak: '第二组。' },
+          { name: '脊椎伸展', duration: 10, detail: '3组·10秒 - 第3组', speak: '第三组。' }
+        ]
+      },
+      lower: {
+        relax: [
+          { name: '臀大肌放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '臀大肌放松。共两组。第一组开始。' },
+          { name: '臀大肌放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '股四头肌放松', duration: 60, detail: '1组·1分钟', speak: '股四头肌放松。1分钟。开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '髂腰肌放松', duration: 30, detail: '每侧30秒 - 左侧', speak: '髂腰肌放松。每侧30秒。左侧开始。' },
+          { name: '髂腰肌放松', duration: 30, detail: '每侧30秒 - 右侧', speak: '换右侧。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '腘绳肌伸展', duration: 30, detail: '2组·30秒 - 第1组', speak: '腘绳肌伸展。第一组开始。' },
+          { name: '腘绳肌伸展', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '阔筋膜张肌放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '阔筋膜张肌放松。第一组开始。' },
+          { name: '阔筋膜张肌放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '大腿外侧放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '大腿外侧放松。第一组开始。' },
+          { name: '大腿外侧放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '小腿腓肠肌放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '小腿腓肠肌放松。第一组开始。' },
+          { name: '小腿腓肠肌放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '腰方肌拉伸', duration: 30, detail: '3组·30秒 - 第1组', speak: '腰方肌拉伸。共三组。第一组开始。' },
+          { name: '腰方肌拉伸', duration: 30, detail: '3组·30秒 - 第2组', speak: '第二组开始。' },
+          { name: '腰方肌拉伸', duration: 30, detail: '3组·30秒 - 第3组', speak: '第三组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '五指抓地', duration: 20, detail: '3组·12个 - 第1组', speak: '五指抓地。第一组开始。' },
+          { name: '五指抓地', duration: 20, detail: '3组·12个 - 第2组', speak: '第二组开始。' },
+          { name: '五指抓地', duration: 20, detail: '3组·12个 - 第3组', speak: '第三组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '足底筋膜', duration: 30, detail: '2组·30秒 - 第1组', speak: '足底筋膜。第一组开始。' },
+          { name: '足底筋膜', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' }
+        ],
+        train: [
+          { name: '髋关节环绕', duration: 15, detail: '2组·6个 - 第1组', speak: '髋关节环绕。共两组。第一组开始。' },
+          { name: '髋关节环绕', duration: 15, detail: '2组·6个 - 第2组', speak: '第二组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '蚌式开合', duration: 20, detail: '4组·8个 - 第1组', speak: '蚌式开合。共四组。第一组开始。' },
+          { name: '蚌式开合', duration: 20, detail: '4组·8个 - 第2组', speak: '第二组开始。' },
+          { name: '蚌式开合', duration: 20, detail: '4组·8个 - 第3组', speak: '第三组开始。' },
+          { name: '蚌式开合', duration: 20, detail: '4组·8个 - 第4组', speak: '第四组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '站立后抬腿', duration: 20, detail: '3组·10个 - 第1组', speak: '站立后抬腿。共三组。第一组开始。' },
+          { name: '站立后抬腿', duration: 20, detail: '3组·10个 - 第2组', speak: '第二组开始。' },
+          { name: '站立后抬腿', duration: 20, detail: '3组·10个 - 第3组', speak: '第三组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '提胸臀桥', duration: 15, detail: '4组·3个·5秒 - 第1组', speak: '提胸臀桥。共四组。第一组开始。' },
+          { name: '提胸臀桥', duration: 15, detail: '4组·3个·5秒 - 第2组', speak: '第二组开始。' },
+          { name: '提胸臀桥', duration: 15, detail: '4组·3个·5秒 - 第3组', speak: '第三组开始。' },
+          { name: '提胸臀桥', duration: 15, detail: '4组·3个·5秒 - 第4组', speak: '第四组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '靠墙静蹲', duration: 60, detail: '3组·1分钟 - 第1组', speak: '靠墙静蹲。共三组。第一组开始，1分钟。' },
+          { name: '靠墙静蹲', duration: 60, detail: '3组·1分钟 - 第2组', speak: '第二组开始。' },
+          { name: '靠墙静蹲', duration: 60, detail: '3组·1分钟 - 第3组', speak: '第三组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '平板支撑', duration: 120, detail: '1组·2分钟', speak: '平板支撑。为您计时两分钟。' }
+        ],
+        stretch: [
+          { name: '臀大肌拉伸', duration: 30, detail: '1组·30秒', speak: '臀大肌拉伸。30秒。开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '背阔肌拉伸', duration: 20, detail: '3组·20秒 - 第1组', speak: '背阔肌拉伸。共三组。第一组开始。' },
+          { name: '背阔肌拉伸', duration: 20, detail: '3组·20秒 - 第2组', speak: '第二组开始。' },
+          { name: '背阔肌拉伸', duration: 20, detail: '3组·20秒 - 第3组', speak: '第三组开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '大腿前侧拉伸', duration: 30, detail: '1组·30秒', speak: '大腿前侧拉伸。30秒。开始。' },
+          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '站立体前屈', duration: 20, detail: '3组·20秒 - 第1组', speak: '站立体前屈。共三组。第一组开始。' },
+          { name: '站立体前屈', duration: 20, detail: '3组·20秒 - 第2组', speak: '第二组开始。' },
+          { name: '站立体前屈', duration: 20, detail: '3组·20秒 - 第3组', speak: '第三组开始。' }
+        ]
+      }
+    };
+
+    let currentCategory = 'upper';
+    let currentPlanKey = 'relax';
+    let workoutPlan = workoutPlans[currentCategory][currentPlanKey];
+    let currentIndex = 0;
+    
+    let timeLeft = 0;
+    let timerInterval;
+    let currentTotalTime = 0;
+    let isPaused = false;
+
+    const timerRing = document.getElementById('timer-ring');
+    const timerText = document.getElementById('timer');
+    const actionEl = document.getElementById('current-action');
+    const detailEl = document.getElementById('action-detail');
+    const startBtn = document.getElementById('start-btn');
+    const nextBtnContainer = document.getElementById('next-action-container');
+    const nextActionName = document.getElementById('next-action-name');
+    
+    // UI 更新与滑动指示器逻辑
+    function updateIndicators() {
+      const activeCat = document.getElementById(`cat-${currentCategory}`);
+      const catIndicator = document.getElementById('cat-indicator');
+      if (activeCat && catIndicator) {
+        catIndicator.style.width = activeCat.offsetWidth + 'px';
+        catIndicator.style.transform = `translateX(${activeCat.offsetLeft}px)`;
+      }
+
+      const activeTab = document.getElementById(`tab-${currentPlanKey}`);
+      const tabIndicator = document.getElementById('tab-indicator');
+      if (activeTab && tabIndicator) {
+        tabIndicator.style.width = activeTab.offsetWidth + 'px';
+        tabIndicator.style.transform = `translateX(${activeTab.offsetLeft}px)`;
+      }
+    }
+
+    window.addEventListener('resize', updateIndicators);
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      setTimeout(updateIndicators, 150);
+      renderLogs();
+    });
+
+    window.togglePause = function() {
+      // 如果还没开始倒计时，则不能暂停
+      if (timeLeft <= 0 || !timerInterval) return; 
+
+      isPaused = !isPaused;
+      const current = workoutPlan[currentIndex];
+      const pauseOverlay = document.getElementById('pause-overlay');
+
+      if (isPaused) {
+        clearInterval(timerInterval);
+        actionEl.innerText = "已暂停";
+        timerRing.style.transition = 'none'; 
+        timerText.classList.add('opacity-20'); 
+        pauseOverlay.classList.remove('opacity-0'); 
+        speak("暂停");
+      } else {
+        actionEl.innerText = current.name;
+        timerText.classList.remove('opacity-20');
+        pauseOverlay.classList.add('opacity-0');
+        speak("继续");
+        timerInterval = setInterval(timerTick, 1000);
+      }
+    };
+
+    // 独立出计时器的递减逻辑，方便暂停与恢复
+    function timerTick() {
+      timeLeft--;
+      timerText.innerText = timeLeft;
+      
+      timerRing.style.transition = 'stroke-dashoffset 1s linear';
+      const offset = 283 - (timeLeft / currentTotalTime) * 283;
+      timerRing.style.strokeDashoffset = offset;
+
+      if (timeLeft === 3) speak("三");
+      if (timeLeft === 2) speak("二");
+      if (timeLeft === 1) speak("一");
+
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        currentIndex++;
+        runExercise(); 
+      }
+    }
+
+    window.switchCategory = function(cat) {
+      if (timerInterval) clearInterval(timerInterval); 
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
+
+      currentCategory = cat;
+      workoutPlan = workoutPlans[currentCategory][currentPlanKey];
+      
+      ['upper', 'lower'].forEach(c => {
+        const el = document.getElementById(`cat-${c}`);
+        if (c === cat) {
+          el.classList.remove('text-slate-400', 'font-medium');
+          el.classList.add('text-white', 'font-bold');
+        } else {
+          el.classList.add('text-slate-400', 'font-medium');
+          el.classList.remove('text-white', 'font-bold');
+        }
+      });
+
+      updateIndicators();
+      resetUI();
+    };
+
+    window.switchTab = function(tabKey) {
+      if (timerInterval) clearInterval(timerInterval); 
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel(); 
+      
+      currentPlanKey = tabKey;
+      workoutPlan = workoutPlans[currentCategory][currentPlanKey];
+      
+      ['relax', 'train', 'stretch'].forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        if (t === tabKey) {
+          el.classList.remove('text-slate-400', 'font-medium');
+          el.classList.add('text-indigo-300', 'font-bold');
+        } else {
+          el.classList.add('text-slate-400', 'font-medium');
+          el.classList.remove('text-indigo-300', 'font-bold');
+        }
+      });
+
+      updateIndicators();
+      resetUI();
+    };
+
+    function resetUI() {
+      currentIndex = 0;
+      timeLeft = 0;
+      isPaused = false;
+      
+      const pauseOverlay = document.getElementById('pause-overlay');
+      if (pauseOverlay) pauseOverlay.classList.add('opacity-0');
+      timerText.classList.remove('opacity-20');
+      
+      actionEl.classList.remove('fade-in');
+      actionEl.innerText = "准备开始";
+      detailEl.innerText = "";
+      detailEl.classList.add('opacity-0');
+      nextBtnContainer.classList.add('opacity-0', 'pointer-events-none');
+      
+      timerText.innerText = "00";
+      timerRing.style.transition = 'stroke-dashoffset 0.3s ease-out';
+      timerRing.style.strokeDashoffset = 0; 
+      
+      startBtn.style.display = 'block';
+      startBtn.innerText = '开始训练';
+      
+      updateOverallProgress();
+    }
+
+    // 修复语音吞字的终极方法：在前面强行垫一个逗号和停顿
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); 
+        const utterance = new SpeechSynthesisUtterance("，" + text);
+        utterance.lang = 'zh-CN'; 
+        utterance.rate = 1.15; 
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function updateOverallProgress() {
+      const progressEl = document.getElementById('overall-progress');
+      const percentEl = document.getElementById('overall-percent');
+      
+      if (workoutPlan.length === 0) return;
+      const percent = Math.min(100, Math.round((currentIndex / workoutPlan.length) * 100));
+      progressEl.style.width = `${percent}%`;
+      percentEl.innerText = `${percent}%`;
+    }
+
+    window.startWorkout = function() {
+      startBtn.style.display = 'none';
+      currentIndex = 0;
+      
+      let initialAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+      initialAudioContext.resume();
+      
+      runExercise();
+    };
+
+    window.skipToNext = function() {
+      if (timerInterval) clearInterval(timerInterval);
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      currentIndex++;
+      runExercise();
+    };
+
+    function runExercise() {
+      updateOverallProgress();
+
+      if (currentIndex >= workoutPlan.length) {
+        finishWorkout();
+        return;
+      }
+
+      const current = workoutPlan[currentIndex];
+      const next = workoutPlan[currentIndex + 1];
+
+      actionEl.classList.remove('fade-in');
+      void actionEl.offsetWidth; 
+      actionEl.classList.add('fade-in');
+
+      actionEl.innerText = current.name;
+      
+      if (current.type === 'rest') {
+        actionEl.classList.add('text-slate-400');
+        actionEl.classList.remove('text-white');
+        detailEl.classList.add('opacity-0');
+      } else {
+        actionEl.classList.remove('text-slate-400');
+        actionEl.classList.add('text-white');
+        detailEl.innerText = current.detail || "";
+        detailEl.classList.remove('opacity-0');
+      }
+
+      if (next) {
+        nextActionName.innerText = next.type === 'rest' ? '休息' : next.name;
+      } else {
+        nextActionName.innerText = "即将完成 🎉";
+      }
+      nextBtnContainer.classList.remove('opacity-0', 'pointer-events-none');
+
+      // 设定时间并清除暂停状态
+      currentTotalTime = current.duration;
+      timeLeft = currentTotalTime;
+      timerText.innerText = timeLeft;
+      
+      timerRing.style.transition = 'none';
+      timerRing.style.strokeDashoffset = 0;
+      
+      isPaused = false;
+      timerText.classList.remove('opacity-20');
+      document.getElementById('pause-overlay').classList.add('opacity-0');
+
+      if (current.type === 'rest') {
+        speak("休息" + current.duration + "秒，准备换动作");
+      } else {
+        speak(current.speak || ("准备，" + current.name));
+      }
+
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(timerTick, 1000);
+    }
+
+    function finishWorkout() {
+      updateOverallProgress();
+      document.getElementById('overall-progress').style.width = '100%';
+      document.getElementById('overall-percent').innerText = '100%';
+      
+      actionEl.innerText = "训练完成！";
+      actionEl.classList.remove('text-slate-400');
+      actionEl.classList.add('text-white');
+      detailEl.classList.add('opacity-0');
+      nextBtnContainer.classList.add('opacity-0', 'pointer-events-none');
+      timerText.innerText = "🎉";
+      timerRing.style.strokeDashoffset = 0;
+      
+      speak("恭喜完成本次训练，您的自律令人敬佩！记录已保存。");
+      
+      startBtn.style.display = 'block';
+      startBtn.innerText = '再练一次';
+      saveCheckIn();
+    }
+
+    function saveCheckIn() {
+      const now = new Date();
+      const timeString = now.toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      
+      const catName = currentCategory === 'upper' ? '上半身' : '下半身';
+      const tabName = currentPlanKey === 'relax' ? '放松' : (currentPlanKey === 'train' ? '训练' : '拉伸');
+      
+      let logs = JSON.parse(localStorage.getItem('fitnessLogs') || '[]');
+      logs.unshift({ time: timeString, label: `完成 ${catName} - ${tabName}`, isNew: true }); 
+      
+      logs = logs.map((l, i) => i === 0 ? l : { ...l, isNew: false });
+      
+      localStorage.setItem('fitnessLogs', JSON.stringify(logs));
+      renderLogs();
+    }
+
+    function renderLogs() {
+      const logs = JSON.parse(localStorage.getItem('fitnessLogs') || '[]');
+      const ul = document.getElementById('log-list');
+      
+      if (logs.length === 0) {
+        ul.innerHTML = '<li class="text-center text-slate-500 text-sm py-4">还没有记录，今天也动起来吧！</li>';
+        return;
+      }
+      
+      ul.innerHTML = '';
+      logs.forEach(log => {
+        const li = document.createElement('li');
+        li.className = "flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700/50";
+        
+        if (log.isNew) {
+           li.classList.add('border-indigo-500/50', 'bg-indigo-900/20');
+           li.innerHTML = `
+            <div class="bg-gradient-to-br from-orange-400 to-red-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/30 shrink-0">
+              <i data-lucide="flame" class="w-4 h-4 text-white"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white">${log.label}</p>
+              <p class="text-xs text-indigo-300 mt-0.5">${log.time}</p>
+            </div>
+          `;
+        } else {
+          li.innerHTML = `
+            <div class="bg-slate-700 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+              <i data-lucide="check" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-slate-300">${log.label}</p>
+              <p class="text-xs text-slate-500 mt-0.5">${log.time}</p>
+            </div>
+          `;
+        }
+        ul.appendChild(li);
+      });
+      lucide.createIcons();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    window.backupLogs = function() {
+      const logs = localStorage.getItem('fitnessLogs');
+      if (!logs || logs === '[]') {
+        showToast("暂无数据可备份");
+        return;
+      }
+      const blob = new Blob([logs], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().split('T')[0];
+      a.href = url;
+      a.download = `fitness_backup_${dateStr}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("备份文件已下载");
+    };
+
+    window.restoreLogs = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const content = e.target.result;
+          JSON.parse(content); 
+          localStorage.setItem('fitnessLogs', content);
+          renderLogs();
+          showToast("数据恢复成功！");
+        } catch (error) {
+          showToast("备份文件格式错误");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = ''; 
+    };
+
+  </script>
+</body>
+</html>
