@@ -143,77 +143,77 @@
   <script>
     lucide.createIcons();
 
-    // === 训练菜单数据（已修正所有基于次数与秒数的总时长） ===
+    // === 训练菜单数据 ===
     const workoutPlans = {
       upper: {
         relax: [
           { name: '颈后肌群放松', duration: 60, detail: '12个·5秒', speak: '颈后肌群放松。共12个，每个5秒。准备开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '肩胛提肌拉伸', duration: 30, detail: '2组·30秒 - 第1组', speak: '肩胛提肌拉伸。共两组，每组30秒。第一组开始。' },
           { name: '肩胛提肌拉伸', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '斜角肌斜方肌放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '斜角肌斜方肌放松。共两组。第一组开始。' },
           { name: '斜角肌斜方肌放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '胸锁乳突肌放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '胸锁乳突肌放松。第一组开始。' },
           { name: '胸锁乳突肌放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '肩胛下角放松', duration: 60, detail: '1组·1分钟', speak: '肩胛下角放松。1分钟。开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '上背部放松', duration: 20, detail: '4组·20秒 - 第1组', speak: '上背部放松。共4组。第一组开始。' },
           { name: '上背部放松', duration: 20, detail: '4组·20秒 - 第2组', speak: '第二组开始。' },
           { name: '上背部放松', duration: 20, detail: '4组·20秒 - 第3组', speak: '第三组开始。' },
           { name: '上背部放松', duration: 20, detail: '4组·20秒 - 第4组', speak: '第四组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '肩胛骨放松', duration: 10, detail: '3组·10秒 - 第1组', speak: '肩胛骨放松。第一组开始。' },
           { name: '肩胛骨放松', duration: 10, detail: '3组·10秒 - 第2组', speak: '第二组。' },
           { name: '肩胛骨放松', duration: 10, detail: '3组·10秒 - 第3组', speak: '第三组。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '三角肌放松', duration: 20, detail: '2组·20秒 - 第1组', speak: '三角肌放松。第一组开始。' },
           { name: '三角肌放松', duration: 20, detail: '2组·20秒 - 第2组', speak: '第二组。' }
         ],
         train: [
           { name: '肩部正反向环绕', duration: 60, detail: '30个·2秒', speak: '肩部正反向环绕。共30个，每边两秒。准备开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '猫式伸展', duration: 40, detail: '3组·10个 - 第1组', speak: '猫式伸展。共三组。第一组开始。' },
           { name: '猫式伸展', duration: 40, detail: '3组·10个 - 第2组', speak: '第二组。' },
           { name: '猫式伸展', duration: 40, detail: '3组·10个 - 第3组', speak: '第三组。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: 'Y训练', duration: 60, detail: '2组·12个·5秒 - 第1组', speak: 'Y训练。第一组开始。' },
           { name: 'Y训练', duration: 60, detail: '2组·12个·5秒 - 第2组', speak: '第二组。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '俯卧挺身', duration: 40, detail: '3组·10个 - 第1组', speak: '俯卧挺身。第一组开始。' },
           { name: '俯卧挺身', duration: 40, detail: '3组·10个 - 第2组', speak: '第二组。' },
           { name: '俯卧挺身', duration: 40, detail: '3组·10个 - 第3组', speak: '第三组。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '卷腹', duration: 45, detail: '3组·15个 - 第1组', speak: '卷腹。第一组开始。' },
           { name: '卷腹', duration: 45, detail: '3组·15个 - 第2组', speak: '第二组。' },
           { name: '卷腹', duration: 45, detail: '3组·15个 - 第3组', speak: '第三组。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '平板支撑', duration: 120, detail: '1组·2分钟', speak: '平板支撑。为您计时两分钟，请保持呼吸。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '胸椎旋转', duration: 60, detail: '15个·4秒', speak: '胸椎旋转。开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '单腿平衡', duration: 30, detail: '每侧保持30秒', speak: '单腿平衡。开始。' }
         ],
         stretch: [
           { name: 'L胸部伸展', duration: 10, detail: '3组·10秒 - 第1组', speak: 'L胸部伸展。共三组。第一组开始。' },
           { name: 'L胸部伸展', duration: 10, detail: '3组·10秒 - 第2组', speak: '第二组。' },
           { name: 'L胸部伸展', duration: 10, detail: '3组·10秒 - 第3组', speak: '第三组。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '肱二头肌拉伸', duration: 30, detail: '2组·30秒 - 第1组', speak: '肱二头肌拉伸。第一组开始。' },
           { name: '肱二头肌拉伸', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '手臂后侧拉伸', duration: 15, detail: '3组·15秒 - 第1组', speak: '手臂后侧拉伸。第一组开始。' },
           { name: '手臂后侧拉伸', duration: 15, detail: '3组·15秒 - 第2组', speak: '第二组。' },
           { name: '手臂后侧拉伸', duration: 15, detail: '3组·15秒 - 第3组', speak: '第三组。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '背部左右拉伸', duration: 60, detail: '12个·5秒', speak: '背部左右拉伸。共十二个。开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '背部拉伸', duration: 30, detail: '3组·30秒 - 第1组', speak: '背部拉伸。第一组开始。' },
           { name: '背部拉伸', duration: 30, detail: '3组·30秒 - 第2组', speak: '第二组。' },
           { name: '背部拉伸', duration: 30, detail: '3组·30秒 - 第3组', speak: '第三组。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '脊椎伸展', duration: 10, detail: '3组·10秒 - 第1组', speak: '脊椎伸展。第一组开始。' },
           { name: '脊椎伸展', duration: 10, detail: '3组·10秒 - 第2组', speak: '第二组。' },
           { name: '脊椎伸展', duration: 10, detail: '3组·10秒 - 第3组', speak: '第三组。' }
@@ -223,68 +223,68 @@
         relax: [
           { name: '臀大肌放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '臀大肌放松。共两组。第一组开始。' },
           { name: '臀大肌放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '股四头肌放松', duration: 60, detail: '1组·1分钟', speak: '股四头肌放松。1分钟。开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '髂腰肌放松', duration: 30, detail: '每侧30秒 - 左侧', speak: '髂腰肌放松。每侧30秒。左侧开始。' },
           { name: '髂腰肌放松', duration: 30, detail: '每侧30秒 - 右侧', speak: '换右侧。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '腘绳肌伸展', duration: 30, detail: '2组·30秒 - 第1组', speak: '腘绳肌伸展。第一组开始。' },
           { name: '腘绳肌伸展', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '阔筋膜张肌放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '阔筋膜张肌放松。第一组开始。' },
           { name: '阔筋膜张肌放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '大腿外侧放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '大腿外侧放松。第一组开始。' },
           { name: '大腿外侧放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '小腿腓肠肌放松', duration: 30, detail: '2组·30秒 - 第1组', speak: '小腿腓肠肌放松。第一组开始。' },
           { name: '小腿腓肠肌放松', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '腰方肌拉伸', duration: 30, detail: '3组·30秒 - 第1组', speak: '腰方肌拉伸。共三组。第一组开始。' },
           { name: '腰方肌拉伸', duration: 30, detail: '3组·30秒 - 第2组', speak: '第二组开始。' },
           { name: '腰方肌拉伸', duration: 30, detail: '3组·30秒 - 第3组', speak: '第三组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '五指抓地', duration: 20, detail: '3组·12个 - 第1组', speak: '五指抓地。第一组开始。' },
           { name: '五指抓地', duration: 20, detail: '3组·12个 - 第2组', speak: '第二组开始。' },
           { name: '五指抓地', duration: 20, detail: '3组·12个 - 第3组', speak: '第三组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '足底筋膜', duration: 30, detail: '2组·30秒 - 第1组', speak: '足底筋膜。第一组开始。' },
           { name: '足底筋膜', duration: 30, detail: '2组·30秒 - 第2组', speak: '第二组开始。' }
         ],
         train: [
           { name: '髋关节环绕', duration: 15, detail: '2组·6个 - 第1组', speak: '髋关节环绕。共两组。第一组开始。' },
           { name: '髋关节环绕', duration: 15, detail: '2组·6个 - 第2组', speak: '第二组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '蚌式开合', duration: 20, detail: '4组·8个 - 第1组', speak: '蚌式开合。共四组。第一组开始。' },
           { name: '蚌式开合', duration: 20, detail: '4组·8个 - 第2组', speak: '第二组开始。' },
           { name: '蚌式开合', duration: 20, detail: '4组·8个 - 第3组', speak: '第三组开始。' },
           { name: '蚌式开合', duration: 20, detail: '4组·8个 - 第4组', speak: '第四组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '站立后抬腿', duration: 20, detail: '3组·10个 - 第1组', speak: '站立后抬腿。共三组。第一组开始。' },
           { name: '站立后抬腿', duration: 20, detail: '3组·10个 - 第2组', speak: '第二组开始。' },
           { name: '站立后抬腿', duration: 20, detail: '3组·10个 - 第3组', speak: '第三组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '提胸臀桥', duration: 15, detail: '4组·3个·5秒 - 第1组', speak: '提胸臀桥。共四组。第一组开始。' },
           { name: '提胸臀桥', duration: 15, detail: '4组·3个·5秒 - 第2组', speak: '第二组开始。' },
           { name: '提胸臀桥', duration: 15, detail: '4组·3个·5秒 - 第3组', speak: '第三组开始。' },
           { name: '提胸臀桥', duration: 15, detail: '4组·3个·5秒 - 第4组', speak: '第四组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '靠墙静蹲', duration: 60, detail: '3组·1分钟 - 第1组', speak: '靠墙静蹲。共三组。第一组开始，1分钟。' },
           { name: '靠墙静蹲', duration: 60, detail: '3组·1分钟 - 第2组', speak: '第二组开始。' },
           { name: '靠墙静蹲', duration: 60, detail: '3组·1分钟 - 第3组', speak: '第三组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '平板支撑', duration: 120, detail: '1组·2分钟', speak: '平板支撑。为您计时两分钟。' }
         ],
         stretch: [
           { name: '臀大肌拉伸', duration: 30, detail: '1组·30秒', speak: '臀大肌拉伸。30秒。开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '背阔肌拉伸', duration: 20, detail: '3组·20秒 - 第1组', speak: '背阔肌拉伸。共三组。第一组开始。' },
           { name: '背阔肌拉伸', duration: 20, detail: '3组·20秒 - 第2组', speak: '第二组开始。' },
           { name: '背阔肌拉伸', duration: 20, detail: '3组·20秒 - 第3组', speak: '第三组开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '大腿前侧拉伸', duration: 30, detail: '1组·30秒', speak: '大腿前侧拉伸。30秒。开始。' },
-          { name: '准备换动作', duration: 5, type: 'rest' },
+          { name: '准备换动作', duration: 8, type: 'rest' },
           { name: '站立体前屈', duration: 20, detail: '3组·20秒 - 第1组', speak: '站立体前屈。共三组。第一组开始。' },
           { name: '站立体前屈', duration: 20, detail: '3组·20秒 - 第2组', speak: '第二组开始。' },
           { name: '站立体前屈', duration: 20, detail: '3组·20秒 - 第3组', speak: '第三组开始。' }
@@ -301,6 +301,10 @@
     let timerInterval;
     let currentTotalTime = 0;
     let isPaused = false;
+    
+    // 新增：螢幕常亮狀態追蹤
+    let wakeLock = null;
+    let isWorkoutActive = false;
 
     const timerRing = document.getElementById('timer-ring');
     const timerText = document.getElementById('timer');
@@ -310,6 +314,32 @@
     const nextBtnContainer = document.getElementById('next-action-container');
     const nextActionName = document.getElementById('next-action-name');
     
+    // === 螢幕常亮 (Wake Lock API) 控制 ===
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {
+        console.log('無法啟用螢幕常亮:', err);
+      }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLock !== null) {
+        wakeLock.release().then(() => {
+          wakeLock = null;
+        });
+      }
+    }
+
+    // 當切換到其他 App 再回來時，如果還在訓練中，重新請求常亮
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && isWorkoutActive && !isPaused) {
+        requestWakeLock();
+      }
+    });
+
     // UI 更新与滑动指示器逻辑
     function updateIndicators() {
       const activeCat = document.getElementById(`cat-${currentCategory}`);
@@ -349,12 +379,14 @@
         timerText.classList.add('opacity-20'); 
         pauseOverlay.classList.remove('opacity-0'); 
         speak("暂停");
+        releaseWakeLock(); // 暫停時釋放常亮，幫手機省電
       } else {
         actionEl.innerText = current.name;
         timerText.classList.remove('opacity-20');
         pauseOverlay.classList.add('opacity-0');
         speak("继续");
         timerInterval = setInterval(timerTick, 1000);
+        requestWakeLock(); // 繼續時重新恢復螢幕常亮
       }
     };
 
@@ -426,6 +458,8 @@
       currentIndex = 0;
       timeLeft = 0;
       isPaused = false;
+      isWorkoutActive = false;
+      releaseWakeLock(); // 重置介面時解除常亮
       
       const pauseOverlay = document.getElementById('pause-overlay');
       if (pauseOverlay) pauseOverlay.classList.add('opacity-0');
@@ -471,6 +505,8 @@
     window.startWorkout = function() {
       startBtn.style.display = 'none';
       currentIndex = 0;
+      isWorkoutActive = true;
+      requestWakeLock(); // 開始訓練，鎖定螢幕常亮
       
       let initialAudioContext = new (window.AudioContext || window.webkitAudioContext)();
       initialAudioContext.resume();
@@ -500,13 +536,15 @@
       void actionEl.offsetWidth; 
       actionEl.classList.add('fade-in');
 
-      actionEl.innerText = current.name;
-      
       if (current.type === 'rest') {
+        // 如果是休息时间，显示即将开始的下一个动作
+        actionEl.innerText = "即将开始：" + (next ? next.name : "");
         actionEl.classList.add('text-slate-400');
         actionEl.classList.remove('text-white');
         detailEl.classList.add('opacity-0');
       } else {
+        // 正常训练动作
+        actionEl.innerText = current.name;
         actionEl.classList.remove('text-slate-400');
         actionEl.classList.add('text-white');
         detailEl.innerText = current.detail || "";
@@ -533,7 +571,12 @@
       document.getElementById('pause-overlay').classList.add('opacity-0');
 
       if (current.type === 'rest') {
-        speak("休息" + current.duration + "秒，准备换动作");
+        // 休息时的语音播报改成预告下一个动作
+        if (next) {
+          speak(next.name + "，动作准备");
+        } else {
+          speak("休息" + current.duration + "秒");
+        }
       } else {
         speak(current.speak || ("准备，" + current.name));
       }
@@ -543,6 +586,9 @@
     }
 
     function finishWorkout() {
+      isWorkoutActive = false;
+      releaseWakeLock(); // 訓練結束，解除常亮
+      
       updateOverallProgress();
       document.getElementById('overall-progress').style.width = '100%';
       document.getElementById('overall-percent').innerText = '100%';
